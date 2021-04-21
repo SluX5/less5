@@ -1,0 +1,40 @@
+---
+- hosts: prod
+  become: yes
+
+  tasks:
+     - name: "Update"
+       command: apt -y update
+     - name: "Install Docker"
+       command: pip install docker-py
+     - name: "Update"
+       command: apt -y update
+     - name: "Install" 
+       command: apt -y install apt-transport-https
+     - name: ca-certificates 
+       command: apt -y install ca-certificates 
+     - name: Curl
+       command: apt -y install curl 
+     - name: gnupg 
+       command: apt -y install gnupg 
+     - name: lsb-release
+       command: apt -y install lsb-release
+     - name: Key
+       apt_key: url=https://download.docker.com/linux/ubuntu/gpg
+     - name: Add Docker APT repository
+       apt_repository:
+          repo: deb [arch=amd64] https://download.docker.com/{{ ansible_system | lower }}/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable
+     - name: Install Docker
+       command: apt-get -y install docker-ce docker-ce-cli containerd.io
+     - name: Install docker-compose
+       pip:
+         name: docker-compose
+     - name: copy file
+       ansible.builtin.copy:
+         src: docker-compose.yml
+         dest: /root
+         owner: root
+         group: root
+         mode: '0644'
+     - name: Docker-compose start
+       command: docker-compose up 
